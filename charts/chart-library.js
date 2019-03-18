@@ -30,7 +30,6 @@
           lineWidth: 1
         }
       },
-
       xAxis: {
         type: 'datetime',
         title: { text: 'Date' }
@@ -68,7 +67,7 @@
       legend: { enabled: true },
       credits: {
         text: 'casportpony.com',
-        href: 'https://casportpony.com/',
+        href: '' // 'https://casportpony.com/' does not work on google sites
       }
     };
 
