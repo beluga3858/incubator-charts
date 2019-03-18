@@ -1,5 +1,5 @@
-
   // add a Humidity and Temperature chart (dual Y axis, C/F convert menu)
+  var useFahrenheit = sessionStorage.getItem('fahrenheit') == 'true'; // temperature units - C (default) or F
   function addChartHT(title, subtitle, y_axis_left_title, y_axis_right_title) {
     // variable for the local date in milliseconds
     var localDate;
