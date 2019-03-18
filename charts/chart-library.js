@@ -108,7 +108,22 @@
     });
   }
 
-  // converts date format from JSON and adjusts from UTC to local timezone
+  // add a horizontal reference line (and rescale chart if necessary)
+  function addReferenceLine(chart, value) {
+    // add reference line
+    chart.yAxis[0].addPlotLine({
+      value: value,
+      color: 'red',
+      dashStyle: 'dot',
+      width: 1
+    });
+
+    // rescale if necessary
+    let extremes = chart.yAxis[0].getExtremes();
+    chart.yAxis[0].setExtremes(extremes.min,Math.max(extremes.max,value));
+  }
+
+  // helper function to convert date format from JSON and adjusts from UTC to local timezone
   var chartDateOffset = (new Date().getTimezoneOffset()) * 60000; // user's timezone offset in milliseconds
   function getChartDate(d) {
     // timezone offset is subtracted so that chart's x-axis is correct
