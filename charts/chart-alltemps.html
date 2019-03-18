@@ -3,6 +3,7 @@
   <head> 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
     
     <style type="text/css">
       body { background-color: white; height: 100%; margin: 0; padding: 0; }
@@ -15,15 +16,18 @@
       // chart title
       var chart_title = 'All Incubator Temperatures';
       
+      // temperature units - C (default) or F
+      var useFahrenheit = sessionStorage.getItem('fahrenheit') == 'true';
+      
       var series = [
-        {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc'},
-        {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f'},
-        {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99'},
-        {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95'},
-        {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236'},
-        {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161'},
-        {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0'},
-        {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84'}
+        {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0', conv: useFahrenheit?TemperatureCtoF:null },
+        {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84', conv: useFahrenheit?TemperatureCtoF:null }
       ];
 
       // number of results to plot
@@ -31,9 +35,10 @@
       
       // reference line value
       var reference_line = 37.5; 
+      if (useFahrenheit) reference_line = TemperatureCtoF(reference_line);
       
       // y axis titles
-      var y_axis_title = 'Temperature °C';
+      var y_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');;
       
       // user's timezone offset
       var my_offset = new Date().getTimezoneOffset();
@@ -48,13 +53,17 @@
         // add the series
         for (var i=0; i<series.length; i++) {
           var s = series[i];
-          addSeries(s.name, s.ch_id, s.field, s.api_key, num_results, s.color, 0);
+          addSeries(s.name, s.ch_id, s.field, s.api_key, num_results, s.color, 0, s.conv);
         }
         
         // rescale if necessary
         var extremes = my_chart.yAxis[0].getExtremes();
         my_chart.yAxis[0].setExtremes(extremes.min,Math.max(extremes.max,reference_line));
       });
+
+      function TemperatureCtoF(tempC) {
+        return (tempC * 1.8) + 32;
+      }      
 
        // add the base chart
       function addChart() {
@@ -68,9 +77,6 @@
             defaultSeriesType: 'line',
             backgroundColor: '#ffffff',
             zoomType: 'x',
-            resetZoomButton: {
-              relativeTo: 'chart'
-            },
             panning: true,
             panKey: 'shift',
             events: { }
@@ -107,12 +113,34 @@
               value: reference_line
             }]
           },      
-          exporting: { enabled: false },
+          navigation: {
+            buttonOptions: {
+              verticalAlign: 'bottom',
+              y: -10
+            }
+          }, 
+          exporting: { 
+            menuItemDefinitions: {
+                // Custom definition
+                units: {
+                    onclick: function () {
+                      // toggle temperature units
+                      sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
+                      location.reload();
+                    },
+                    text: useFahrenheit?'Celsius':'Fahrenheit'
+                }
+            },
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG','units']
+              }
+            }
+          },
           legend: { enabled: true },
           credits: {
             text: 'casportpony.com',
             href: 'https://casportpony.com/',
-            //style: { color: '#D62020' }
           }
         };
 
@@ -121,15 +149,13 @@
       }
 
       // add a series to the chart
-      function addSeries(name, channel_id, field_number, api_key, results, color, yaxis) {
+      function addSeries(name, channel_id, field_number, api_key, results, color, yaxis, conversion_function) {
+        conversion_function = conversion_function || null;
         var field_name = 'field' + field_number;
-
         // get the data with a webservice call
         $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/' + field_number + '.json?offset=0&round=2&results=' + results + '&api_key=' + api_key, function(data) {
-
           // blank array for holding chart data
           var chart_data = [];
-
           // iterate through each feed
           $.each(data.feeds, function() {
             var point = new Highcharts.Point();
@@ -137,17 +163,17 @@
             var value = this[field_name];
             point.x = getChartDate(this.created_at);
             point.y = parseFloat(value);
+            if (conversion_function != null) point.y = conversion_function(point.y);
             // add location if possible
             if (this.location) { point.name = this.location; }
             // if a numerical value exists add it
             if (!isNaN(parseInt(value))) { chart_data.push(point); }
           });
-
           // add the chart data
           my_chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis });
         });
       }
-
+      
       // converts date format from JSON
       function getChartDate(d) {
         // offset in minutes is converted to milliseconds and subtracted so that chart's x-axis is correct
