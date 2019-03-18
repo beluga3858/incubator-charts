@@ -11,8 +11,7 @@
     </style>    
     
     <script type="text/javascript">
-      // dual Y axis chart
-      
+
       // chart title
       var chart_title = 'All Incubator Temperatures';
       
@@ -20,14 +19,14 @@
       var useFahrenheit = sessionStorage.getItem('fahrenheit') == 'true';
       
       var series = [
-        {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0', conv: useFahrenheit?TemperatureCtoF:null },
-        {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84', conv: useFahrenheit?TemperatureCtoF:null }
+        {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0', conv: useFahrenheit?temperatureCtoF:null },
+        {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84', conv: useFahrenheit?temperatureCtoF:null }
       ];
 
       // number of results to plot
@@ -35,7 +34,7 @@
       
       // reference line value
       var reference_line = 37.5; 
-      if (useFahrenheit) reference_line = TemperatureCtoF(reference_line);
+      if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
       
       // y axis titles
       var y_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');;
@@ -61,11 +60,15 @@
         my_chart.yAxis[0].setExtremes(extremes.min,Math.max(extremes.max,reference_line));
       });
 
-      function TemperatureCtoF(tempC) {
-        return (tempC * 1.8) + 32;
+      function round(value, decimals) {
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+      }
+       
+      function temperatureCtoF(tempC) {
+        return round((tempC * 1.8) + 32, 2);
       }      
 
-       // add the base chart
+      // add the base chart
       function addChart() {
         // variable for the local date in milliseconds
         var localDate;
@@ -77,6 +80,9 @@
             defaultSeriesType: 'line',
             backgroundColor: '#ffffff',
             zoomType: 'x',
+            resetZoomButton: {
+              relativeTo: 'chart'
+            },
             panning: true,
             panKey: 'shift',
             events: { }
@@ -126,7 +132,7 @@
                     onclick: function () {
                       // toggle temperature units
                       sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
-                      window.parent.location.reload();
+                      location.reload();
                     },
                     text: useFahrenheit?'Celsius':'Fahrenheit'
                 }
