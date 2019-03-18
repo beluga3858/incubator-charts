@@ -111,17 +111,19 @@
   }
 
   // values to forcibly include on chart (rescale to include)
-  var chartIncludeValues = [];
+  var chartIncludeValues = [[],[]];
 
   // called on chart redraw (multiple times)
   function chartRedrawEvent(chart) {
-    let extremes = chart.yAxis[0].getExtremes();
-		let chartIncludeMin = Math.min(...chartIncludeValues);
-    let chartIncludeMax = Math.max(...chartIncludeValues);
-    // adjust chart range to include the chartIncludeValues
-		if (chartIncludeMin<extremes.min || chartIncludeMax>extremes.max) {
-		  chart.yAxis[0].setExtremes(Math.min(extremes.min,chartIncludeMin), Math.max(extremes.max,chartIncludeMax));
-    }
+    chart.yAxis.forEach(function(axis, index) {
+      let extremes = axis.getExtremes();
+      let chartIncludeMin = Math.min(...chartIncludeValues[index]);
+      let chartIncludeMax = Math.max(...chartIncludeValues[index]);
+      // adjust chart range to include the chartIncludeValues
+      if (chartIncludeMin<extremes.min || chartIncludeMax>extremes.max) {
+        axis.setExtremes(Math.min(extremes.min,chartIncludeMin), Math.max(extremes.max,chartIncludeMax));
+      }
+    });
   }
 
   // add a horizontal reference line (and rescale chart if necessary)
@@ -137,7 +139,7 @@
     });
 
     // add to the values that should be included on the chart (ie. rescale list)
-    chartIncludeValues.push(value);
+    chartIncludeValues[yaxis].push(value);
   }
 
   // helper function to convert date format from JSON and adjusts from UTC to local timezone
