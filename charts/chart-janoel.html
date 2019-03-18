@@ -35,7 +35,7 @@
       var my_chart;
 
       // when the document is ready
-      //$(document).on('ready', function() {
+      $(document).on('ready', function() {
         // add a blank chart
         addChart();
         // add the series
@@ -43,7 +43,7 @@
           var s = series[i];
           addSeries(s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
         }
-      //});
+      });
 
       function TemperatureCtoF(tempC) {
         return (tempC * 1.8) + 32;
