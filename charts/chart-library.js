@@ -109,9 +109,11 @@
   }
 
   // add a horizontal reference line (and rescale chart if necessary)
-  function addReferenceLine(chart, value) {
+  function addReferenceLine(chart, value, yaxis) {
+    yaxis = yaxis || 0;
+  
     // add reference line
-    chart.yAxis[0].addPlotLine({
+    chart.yAxis[yaxis].addPlotLine({
       value: value,
       color: 'red',
       dashStyle: 'dot',
@@ -119,8 +121,8 @@
     });
 
     // rescale if necessary
-    let extremes = chart.yAxis[0].getExtremes();
-    chart.yAxis[0].setExtremes(extremes.min,Math.max(extremes.max,value));
+    let extremes = chart.yAxis[yaxis].getExtremes();
+    chart.yAxis[yaxis].setExtremes(extremes.min,Math.max(extremes.max,value));
   }
 
   // helper function to convert date format from JSON and adjusts from UTC to local timezone
