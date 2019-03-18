@@ -10,34 +10,25 @@
     </style>    
 
     <script type="text/javascript">
-      // dual Y axis chart
-      
       // chart title
       var chart_title = 'Incubator - RCOM';
       var chart_subtitle = 'Humidity & Temperature';
 
-      // variables for the first series
-      var series_1_channel_id = 519385;
-      var series_1_name = 'Humidity %';
-      var series_1_field_number = 5;
-      var series_1_read_api_key = 'TUDLH2CIKZ7MTHIV';
-      var series_1_results = 1440;
-      var series_1_color = '#0040ff';
-      var series_1_yaxis = 0;
-      
-      // variables for the second series
-      var series_2_channel_id = 519385;
-      var series_2_name = 'Temperature °C';
-      var series_2_field_number = 6;
-      var series_2_read_api_key = 'TUDLH2CIKZ7MTHIV';
-      var series_2_results = series_1_results;
-      var series_2_color = '#c62727';
-      var series_2_yaxis = 1;
-      
+      // temperature units - C (default) or F
+      var useFahrenheit = sessionStorage.getItem('fahrenheit') == 'true';
+
       // y axis titles
-      var y1_axis_title = series_1_name;
-      var y2_axis_title = series_2_name;
-      
+      var y1_axis_title = 'Humidity %';
+      var y2_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
+
+      var series = [
+        {name: y1_axis_title, field: 5, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#0040ff'},
+        {name: y2_axis_title, field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#c62727', axis: 1, conv: useFahrenheit?TemperatureCtoF:null }
+      ];
+
+      // number of results to plot
+      var num_results = 24*60;
+
       // user's timezone offset
       var my_offset = new Date().getTimezoneOffset();
       // chart variable
@@ -47,11 +38,16 @@
       $(document).on('ready', function() {
         // add a blank chart
         addChart();
-        // add the first series
-        addSeries(series_1_name, series_1_channel_id, series_1_field_number, series_1_read_api_key, series_1_results, series_1_color, series_1_yaxis);
-        // add the second series
-        addSeries(series_2_name, series_2_channel_id, series_2_field_number, series_2_read_api_key, series_2_results, series_2_color, series_2_yaxis);
+        // add the series
+        for (var i=0; i<series.length; i++) {
+          var s = series[i];
+          addSeries(s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
+        }
       });
+
+      function TemperatureCtoF(tempC) {
+        return (tempC * 1.8) + 32;
+      }
 
       // add the base chart
       function addChart() {
@@ -102,12 +98,34 @@
             opposite: true,
             title: { text: y2_axis_title } 
           }],
-          exporting: { enabled: false },
+          navigation: {
+            buttonOptions: {
+              verticalAlign: 'bottom',
+              y: -10
+            }
+          },      
+          exporting: { 
+            menuItemDefinitions: {
+                // Custom definition
+                units: {
+                    onclick: function () {
+                      // toggle temperature units
+                      sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
+                      location.reload();
+                    },
+                    text: useFahrenheit?'Celsius':'Fahrenheit'
+                }
+            },
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG','units']
+              }
+            }
+          },
           legend: { enabled: true },
           credits: {
             text: 'casportpony.com',
             href: 'https://casportpony.com/',
-            //style: { color: '#D62020' }
           }
         };
 
@@ -116,7 +134,8 @@
       }
 
       // add a series to the chart
-      function addSeries(name, channel_id, field_number, api_key, results, color, yaxis) {
+      function addSeries(name, channel_id, field_number, api_key, results, color, yaxis, conversion_function) {
+        conversion_function = conversion_function || null;
         var field_name = 'field' + field_number;
 
         // get the data with a webservice call
@@ -132,6 +151,7 @@
             var value = this[field_name];
             point.x = getChartDate(this.created_at);
             point.y = parseFloat(value);
+            if (conversion_function != null) point.y = conversion_function(point.y);
             // add location if possible
             if (this.location) { point.name = this.location; }
             // if a numerical value exists add it
@@ -148,7 +168,6 @@
         // offset in minutes is converted to milliseconds and subtracted so that chart's x-axis is correct
         return Date.parse(d) - (my_offset * 60000);
       }
-
     </script>
   </head>
   <body>
