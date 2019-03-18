@@ -132,6 +132,7 @@
                     onclick: function () {
                       // toggle temperature units
                       sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
+                      window.parent.postMessage('request_reload', '*');
                       location.reload();
                     },
                     text: useFahrenheit?'Celsius':'Fahrenheit'
