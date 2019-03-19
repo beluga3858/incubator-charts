@@ -126,6 +126,30 @@
     });
   }
 
+  // chart zoom state
+  var chartIsZoomed = false;
+
+  // called on chart redraw (multiple times)
+  function chartRedrawEvent(chart) {
+    chart.yAxis.forEach(function(axis, index) {
+      let extremes = axis.getExtremes();
+      let chartIncludeMin = Math.min(...chartIncludeValues[index]);
+      let chartIncludeMax = Math.max(...chartIncludeValues[index]);
+     
+      // adjust chart range
+      let wasZoomed = chartIsZoomed;
+      chartIsZoomed = !!(chart.resetZoomButton);
+      // reset extremes to match data series if zoomed
+      if (chartIsZoomed && (chartIsZoomed!=wasZoomed)) {
+        axis.setExtremes(extremes.dataMin,extremes.dataMax);
+      }
+      // set extremes to include the chartIncludeValues for non zoomed
+      if (!chartIsZoomed && (chartIncludeMin<extremes.min || chartIncludeMax>extremes.max)) {
+        axis.setExtremes(Math.min(extremes.min,chartIncludeMin), Math.max(extremes.max,chartIncludeMax));
+      }
+    });
+  }
+
   // add a horizontal reference line (and rescale chart if necessary)
   function addReferenceLine(chart, value, yaxis) {
     yaxis = yaxis || 0;
@@ -135,7 +159,7 @@
       value: value,
       color: 'red',
       dashStyle: 'dot',
-      width: 1
+      width: 2
     });
 
     // add to the values that should be included on the chart (ie. rescale list)
