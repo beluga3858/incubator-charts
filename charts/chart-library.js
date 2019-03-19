@@ -113,19 +113,6 @@
   // values to forcibly include on chart (rescale to include)
   var chartIncludeValues = [[],[]];
 
-  // called on chart redraw (multiple times)
-  function chartRedrawEvent(chart) {
-    chart.yAxis.forEach(function(axis, index) {
-      let extremes = axis.getExtremes();
-      let chartIncludeMin = Math.min(...chartIncludeValues[index]);
-      let chartIncludeMax = Math.max(...chartIncludeValues[index]);
-      // adjust chart range to include the chartIncludeValues
-      if (chartIncludeMin<extremes.min || chartIncludeMax>extremes.max) {
-        axis.setExtremes(Math.min(extremes.min,chartIncludeMin), Math.max(extremes.max,chartIncludeMax));
-      }
-    });
-  }
-
   // chart zoom state
   var chartIsZoomed = false;
 
