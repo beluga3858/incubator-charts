@@ -20,8 +20,8 @@
       var temperature_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
 
       var series = [
-        {name: humidity_axis_title,    field: 5, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#0040ff'},
-        {name: temperature_axis_title, field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#c62727', axis: 1, conv: useFahrenheit?temperatureCtoF:null }
+        {name: temperature_axis_title, field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'red',  axis: 0, conv: useFahrenheit?temperatureCtoF:null },
+        {name: humidity_axis_title,    field: 5, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', axis: 1},
       ];
 
       // number of results to plot
@@ -30,11 +30,12 @@
       // when the document is ready
       $(document).on('ready', function() {
         // add a blank chart
-        var my_chart = addChartHT(chart_title, 'Humidity & Temperature', humidity_axis_title, temperature_axis_title);
+        var my_chart = addChartHT(chart_title, 'Humidity & Temperature', temperature_axis_title, humidity_axis_title);
         // add the series
         for (var i=0; i<series.length; i++) {
           var s = series[i];
           addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
+          setYAxisColor(my_chart, s.color, s.axis);
         }
       });
     </script>
