@@ -79,7 +79,9 @@
 
   // add a series to the chart
   function addSeries(chart, name, channel_id, field_number, api_key, results, color, yaxis, conversion_function) {
+    yaxis = yaxis || 0;
     conversion_function = conversion_function || null;
+    
     var field_name = 'field' + field_number;
 
     // get the data with a webservice call
@@ -151,6 +153,16 @@
 
     // add to the values that should be included on the chart (ie. rescale list)
     chartIncludeValues[yaxis].push(value);
+  }
+
+  // set y axis title and label color
+  function setYAxisColor(chart, color, yaxis) {
+    yaxis = yaxis || 0;
+
+    chart.yAxis[yaxis].update({
+      title:  { style: { color: color } },
+      labels: { style: { color: color } }
+    });
   }
 
   // helper function to convert date format from JSON and adjusts from UTC to local timezone
