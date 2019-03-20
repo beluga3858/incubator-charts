@@ -37,6 +37,9 @@
           addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
           setYAxisColor(my_chart, s.color, s.axis);
         }
+
+        // set x axis to past 24 hours (range in ms)
+        setXAxisRange(my_chart, Date(), -24*60*60*1000);
       });
     </script>
   </head>

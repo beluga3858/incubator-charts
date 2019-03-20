@@ -1,8 +1,6 @@
   // add a Humidity and Temperature chart (dual Y axis, C/F convert menu)
   var useFahrenheit = sessionStorage.getItem('fahrenheit') == 'true'; // temperature units - C (default) or F
   function addChartHT(title, subtitle, y_axis_left_title, y_axis_right_title) {
-    // variable for the local date in milliseconds
-    var localDate;
 
     // specify the chart options
     var chartOptions = {
@@ -122,14 +120,15 @@
 
   // called on chart redraw (multiple times)
   function chartRedrawEvent(chart) {
+    // track zoom state
+    let wasZoomed = chartIsZoomed;
+    chartIsZoomed = !!(chart.resetZoomButton);
+      
     chart.yAxis.forEach(function(axis, index) {
       let extremes = axis.getExtremes();
       let chartIncludeMin = Math.min(...chartIncludeValues[index]);
       let chartIncludeMax = Math.max(...chartIncludeValues[index]);
      
-      // adjust chart range
-      let wasZoomed = chartIsZoomed;
-      chartIsZoomed = !!(chart.resetZoomButton);
       // reset extremes to auto if zoomed
       if (chartIsZoomed && (chartIsZoomed!=wasZoomed)) {
         axis.setExtremes(null,null);
@@ -139,6 +138,11 @@
         axis.setExtremes(Math.min(extremes.min,chartIncludeMin), Math.max(extremes.max,chartIncludeMax));
       }
     });
+    
+    // reset x extremes if exiting zoom
+    if (wasZoomed && (chartIsZoomed!=wasZoomed) && chartXStart && chartXEnd) {
+      chart.xAxis[0].setExtremes(chartXStart, chartXEnd);
+    }
   }
 
   // add a horizontal reference line (and rescale chart if necessary)
@@ -165,6 +169,15 @@
       title:  { style: { color: color } },
       labels: { style: { color: color } }
     });
+  }
+  
+  // x axis extents range can be positive or negative
+  var chartXStart, chartXend;
+  function setXAxisRange(chart, ref, range) {
+    let chartRef = getChartDate(ref);
+ 	  chartXStart = Math.min(chartRef,chartRef+range);
+    chartXEnd = Math.max(chartRef,chartRef+range);
+    chart.xAxis[0].setExtremes(chartXStart,chartXEnd);
   }
 
   // helper function to convert date format from JSON and adjusts from UTC to local timezone

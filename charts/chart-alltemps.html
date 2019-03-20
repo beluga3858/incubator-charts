@@ -49,6 +49,9 @@
         
         // add reference line
         addReferenceLine(my_chart, reference_line);
+
+        // set x axis to past 24 hours (range in ms)
+        setXAxisRange(my_chart, Date(), -24*60*60*1000);
       });
     </script>
   </head>
