@@ -12,33 +12,32 @@
     </style>    
     
     <script type="text/javascript">
+      window.onload=function(){
       // chart title
-      var chart_title = 'All Incubator Temperatures';
- 
- 			// series to plot
-      var series = [
-        {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0', conv: useFahrenheit?temperatureCtoF:null },
-        {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84', conv: useFahrenheit?temperatureCtoF:null }
-      ];
-      
-      // number of results to plot
-      var num_results = 24*60;
-      
-      // reference line value
-      var reference_line = 37.5; 
-      if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
-      
-      // y axis titles
-      var temperature_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
-      
-      // when the document is ready
-      $(document).on('ready', function() {
+        var chart_title = 'All Incubator Temperatures';
+
+        // series to plot
+        var series = [
+          {name: 'Janoel'      , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#a2b9bc', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Yellow clone', field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#b2ad7f', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'RCom'        , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#878f99', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Ambient'     , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: '#6b5b95', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Xiaomi2'     , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#feb236', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Janoel2_H2'  , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#d64161', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Styro_Xiaomi', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#b5e7a0', conv: useFahrenheit?temperatureCtoF:null },
+          {name: 'Humigadget3' , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: '#034f84', conv: useFahrenheit?temperatureCtoF:null }
+        ];
+
+        // number of results to plot
+        var num_results = 24*60;
+
+        // reference line value
+        var reference_line = 37.5; 
+        if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
+
+        // y axis titles
+        var temperature_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
+
         // add a blank chart
         var my_chart = addChartHT(chart_title, '', temperature_axis_title);
         
@@ -50,7 +49,7 @@
         
         // add reference line
    			addReferenceLine(my_chart, reference_line);
-      });
+      };
     </script>
   </head>
   <body>
