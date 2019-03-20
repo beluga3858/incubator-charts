@@ -83,22 +83,20 @@
     conversion_function = conversion_function || null;
     
     var field_name = 'field' + field_number;
-
+    
     // get the data with a webservice call
     $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/' + field_number + '.json?offset=0&round=2&results=' + results + '&api_key=' + api_key, function(data) {
 
-      // blank array for holding chart data
       var chart_data = [];
-      
-      // data gap detector
-      var gap_count = 99;
+      var gap_count = 0;
+      var have_valid_data=false;
 
       // iterate through each feed
       $.each(data.feeds, function() {
         // get value
         var value = this[field_name];
         // skip small gaps in data
-        if (isNaN(parseInt(value))) { if (gap_count++<3) return; } else { gap_count=0; }
+        if (isNaN(parseInt(value))) { if (gap_count++<4) return; } else { gap_count=0; have_valid_data=true;}
         // create data point
         var point = new Highcharts.Point();
         point.x = getChartDate(this.created_at);
@@ -110,8 +108,8 @@
         chart_data.push(point);
       });
 
-      // add the chart data (if there is any)
-      if (chart_data.length) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis });
+      // add the chart data (if valid)
+      if (have_valid_data) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis }); 
     });
   }
 
