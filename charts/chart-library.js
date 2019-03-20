@@ -37,9 +37,11 @@
         title: { text: 'Date' }
       },
       yAxis: [{
-        title: { text: y_axis_left_title } 
+        showEmpty: false,
+        title: { text: y_axis_left_title }
       }, {
         opposite: true,
+        showEmpty: false,
         title: { text: y_axis_right_title } 
       }],
       navigation: {
