@@ -12,32 +12,32 @@
     </style>    
 
     <script type="text/javascript">
-      // chart title
-      var chart_title = 'Hatcher - Styro';
+      window.onload=function(){
+        // chart title
+        var chart_title = 'Hatcher - Styro';
 
-      // y axis titles
-      var humidity_axis_title = 'Humidity %';
-      var temperature_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
+        // y axis titles
+        var humidity_axis_title = 'Humidity %';
+        var temperature_axis_title = 'Temperature °' + (useFahrenheit?'F':'C');
 
-      var series = [
-        {name: temperature_axis_title, field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'red',  axis: 0, conv: useFahrenheit?temperatureCtoF:null },
-        {name: humidity_axis_title,    field: 5, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', axis: 1},
-      ];
+        var series = [
+          {name: temperature_axis_title, field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'red',  axis: 0, conv: useFahrenheit?temperatureCtoF:null },
+          {name: humidity_axis_title,    field: 5, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', axis: 1},
+        ];
 
-      // number of results to plot
-      var num_results = 24*60;
+        // number of results to plot
+        var num_results = 24*60;
 
-      // when the document is ready
-      $(document).on('ready', function() {
         // add a blank chart
         var my_chart = addChartHT(chart_title, 'Humidity & Temperature', temperature_axis_title, humidity_axis_title);
+
         // add the series
         for (var i=0; i<series.length; i++) {
           var s = series[i];
           addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
           setYAxisColor(my_chart, s.color, s.axis);
         }
-      });
+      };
     </script>
   </head>
   <body>
