@@ -91,7 +91,7 @@
       var chart_data = [];
       
       // data gap detector
-      var gap_count = 0;
+      var gap_count = 99;
 
       // iterate through each feed
       $.each(data.feeds, function() {
