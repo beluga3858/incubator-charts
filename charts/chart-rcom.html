@@ -12,7 +12,7 @@
     </style>    
 
     <script type="text/javascript">
-      window.onload=function(){
+      $(document).ready(function() {
         // chart title
         var chart_title = 'Incubator - RCOM';
 
@@ -37,7 +37,7 @@
           addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, num_results, s.color, s.axis, s.conv);
           setYAxisColor(my_chart, s.color, s.axis);
         }
-      };
+      });
     </script>
   </head>
   <body>
