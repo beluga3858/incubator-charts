@@ -94,8 +94,8 @@
       $.each(data.feeds, function() {
         // get value
         var value = this[field_name];
-        // skip if not numerical
-        if (isNaN(parseInt(value))) return;
+        // skip small gaps in data
+        if (isNaN(parseInt(value))) { if (gap_count++<3) return; } else { gap_count=0; }
         // create data point
         var point = new Highcharts.Point();
         point.x = getChartDate(this.created_at);
