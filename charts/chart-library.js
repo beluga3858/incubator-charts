@@ -109,8 +109,8 @@
         chart_data.push(point);
       });
 
-      // add the chart data
-      chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis });
+      // add the chart data (if there is any)
+      if (chart_data.length) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis });
     });
   }
 
