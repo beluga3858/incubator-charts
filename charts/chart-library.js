@@ -130,9 +130,9 @@
       // adjust chart range
       let wasZoomed = chartIsZoomed;
       chartIsZoomed = !!(chart.resetZoomButton);
-      // reset extremes to match data series if zoomed
+      // reset extremes to auto if zoomed
       if (chartIsZoomed && (chartIsZoomed!=wasZoomed)) {
-        axis.setExtremes(extremes.dataMin,extremes.dataMax);
+        axis.setExtremes(null,null);
       }
       // set extremes to include the chartIncludeValues for non zoomed
       if (!chartIsZoomed && (chartIncludeMin<extremes.min || chartIncludeMax>extremes.max)) {
