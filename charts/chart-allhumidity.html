@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+  <head> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://raw.githack.com/beluga3858/incubator-charts/master/charts/chart-library.js"></script>
+    
+    <style type="text/css">
+      body { background-color: white; height: 100%; margin: 0; padding: 0; }
+      #chart-container { width: 480px; height: 380px; display: block; position:absolute; bottom:0; top:0; left:0; right:0; margin: 5px 15px 15px 0; overflow: hidden; }
+    </style>    
+    
+    <script type="text/javascript">
+      $(document).ready(function() {
+      // chart title
+        var chart_title = 'All Incubator Humidities';
+
+        // series to plot
+        var series = [
+          {name: 'Janoel'        , field: 1, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple' },
+          {name: 'Yellow clone'  , field: 3, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow' },
+          {name: 'RCom'          , field: 5, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green' },
+          {name: 'Ambient'       , field: 7, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', },
+          {name: 'Xiaomi 2'      , field: 1, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue' },
+          {name: 'Humigadget2'   , field: 3, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange' },
+          {name: 'Styro (Xiaomi)', field: 5, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen' },
+          {name: 'Humigadget3'   , field: 7, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink' }
+        ];
+
+        // number of results to plot
+        var num_results = 24*60;
+
+        // y axis titles
+        var humidity_axis_title = 'Humidity %';
+
+        // add a blank chart
+        var my_chart = addChartHT(chart_title, '', humidity_axis_title);
+        
+        // add the series
+        for (var i=0; i<series.length; i++) {
+          var s = series[i];
+          addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, num_results, s.color, 0, s.conv);
+        }
+
+        // set x axis to past 24 hours (range in ms)
+        setXAxisRange(my_chart, Date(), -24*60*60*1000);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="chart-container">
+      <img alt="Ajax loader" src="//thingspeak.com/assets/loader-transparent.gif" style="position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0;" />
+    </div>
+  </body>
+</html>
