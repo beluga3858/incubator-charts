@@ -80,38 +80,30 @@
   // add a series to the chart
   function addSeries(chart, name, channel_id, field_number, api_key, results, color, yaxis, conversion_function) {
     yaxis = yaxis || 0;
-    conversion_function = conversion_function || null;
-    
-    var field_name = 'field' + field_number;
-    
+    conversion_function = conversion_function || function(x) {return x};
+      
     // get the data with a webservice call
     $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/' + field_number + '.json?offset=0&round=2&results=' + results + '&api_key=' + api_key, function(data) {
 
       var chart_data = [];
       var gap_count = 0;
       var have_valid_data=false;
-
+      var field_name = 'field' + field_number;
+    
       // iterate through each feed
       $.each(data.feeds, function() {
         // get value
         var value = this[field_name];
         // skip small gaps in data
         if (isNaN(parseInt(value))) { if (gap_count++<4) return; } else { gap_count=0; have_valid_data=true;}
-        // create data point
-        var point = new Highcharts.Point();
-        point.x = getChartDate(this.created_at);
-        point.y = parseFloat(value);
-        if (conversion_function != null) point.y = conversion_function(point.y);
-        // add location if possible
-        if (this.location) { point.name = this.location; }
-        // add to array
-        chart_data.push(point);
+        // add to chart data
+        chart_data.push([getChartDate(this.created_at), conversion_function(parseFloat(value))]);
       });
 
       // add the chart data (if valid)
       if (have_valid_data) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis }); 
     });
-  }
+  } 
 
   // values to forcibly include on chart (rescale to include)
   var chartIncludeValues = [[],[]];
