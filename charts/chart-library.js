@@ -18,6 +18,9 @@
           redraw: function() { chartRedrawEvent(this); }
         }
       },
+      time: {
+        useUTC: false
+      },         
       title: { text: title },
       subtitle: { text: subtitle },
       plotOptions: {
@@ -32,7 +35,8 @@
       },
       xAxis: {
         type: 'datetime',
-        title: { text: 'Date' }
+        title: { text: 'Date' },
+        minRange: 60*60*1000 // one hour
       },
       yAxis: [{
         showEmpty: false,
@@ -88,20 +92,20 @@
       var chart_data = [];
       var gap_count = 0;
       var field_name = 'field' + field_number;
-      var prev_time = getChartDate(data.feeds[0].created_at);
+      var prev_time = Date.parse(data.feeds[0].created_at);
     
       // iterate through each feed
       $.each(data.feeds, function() {
         // get value and time
         var value = conversion_function(parseFloat(this[field_name]));
-        var time = getChartDate(this.created_at);
+        var time = Date.parse(this.created_at);
         // skip nulls in data (data with a time but no measurement)
         if (isNaN(value) && ++gap_count) return;
         gap_count=0;
         // deliberately add gap if no measurements for several minutes
         if (time-prev_time > 5*60*1000) chart_data.push([time-1,null]);
         prev_time=time;
-        // add to chart data
+    // add to chart data
         chart_data.push([time, value]);
       });
 
@@ -172,17 +176,10 @@
   // x axis extents range can be positive or negative
   var chartXStart, chartXend;
   function setXAxisRange(chart, ref, range) {
-    let chartRef = getChartDate(ref);
- 	chartXStart = Math.min(chartRef,chartRef+range);
+    let chartRef = Date.parse(ref);
+    chartXStart = Math.min(chartRef,chartRef+range);
     chartXEnd = Math.max(chartRef,chartRef+range);
     chart.xAxis[0].setExtremes(chartXStart,chartXEnd);
-  }
-
-  // helper function to convert date format from JSON and adjusts from UTC to local timezone
-  var chartDateOffset = (new Date().getTimezoneOffset()) * 60000; // user's timezone offset in milliseconds
-  function getChartDate(d) {
-    // timezone offset is subtracted so that chart's x-axis is correct
-    return Date.parse(d) - chartDateOffset;
   }
 
   // helper function to round numbers correctly
@@ -193,4 +190,5 @@
   // helper function to convert Celsius to Fahrenheit
   function temperatureCtoF(tempC) {
     return round((tempC * 1.8) + 32, 2);
-  }   
+  }
+  
