@@ -87,23 +87,28 @@
 
       var chart_data = [];
       var gap_count = 0;
-      var have_valid_data=false;
       var field_name = 'field' + field_number;
+      var prev_time = getChartDate(data.feeds[0].created_at);
     
       // iterate through each feed
       $.each(data.feeds, function() {
-        // get value
-        var value = this[field_name];
-        // skip small gaps in data
-        if (isNaN(parseInt(value))) { if (gap_count++<4) return; } else { gap_count=0; have_valid_data=true;}
+        // get value and time
+        var value = conversion_function(parseFloat(this[field_name]));
+        var time = getChartDate(this.created_at);
+        // skip nulls in data (data with a time but no measurement)
+        if (isNaN(value) && ++gap_count) return;
+        gap_count=0;
+        // deliberately add gap if no measurements for several minutes
+        if (time-prev_time > 5*60*1000) chart_data.push([time-1,null]);
+        prev_time=time;
         // add to chart data
-        chart_data.push([getChartDate(this.created_at), conversion_function(parseFloat(value))]);
+        chart_data.push([time, value]);
       });
 
       // add the chart data (if valid)
-      if (have_valid_data) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis }); 
+      if (chart_data.length) chart.addSeries({ data: chart_data, name: name, color: color, yAxis: yaxis }); 
     });
-  } 
+  }  
 
   // values to forcibly include on chart (rescale to include)
   var chartIncludeValues = [[],[]];
@@ -168,7 +173,7 @@
   var chartXStart, chartXend;
   function setXAxisRange(chart, ref, range) {
     let chartRef = getChartDate(ref);
- 	  chartXStart = Math.min(chartRef,chartRef+range);
+ 	chartXStart = Math.min(chartRef,chartRef+range);
     chartXEnd = Math.max(chartRef,chartRef+range);
     chart.xAxis[0].setExtremes(chartXStart,chartXEnd);
   }
