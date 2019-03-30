@@ -35,7 +35,7 @@ window.onload=function(){
 
   // add reference line
   addReferenceLine(my_chart, reference_line);
-}
+
         
 //------------------------------------------------------------------------------------------       
   
@@ -226,3 +226,4 @@ window.onload=function(){
     return ctx.fillStyle; 
   } 
  
+}
