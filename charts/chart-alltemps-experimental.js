@@ -1,4 +1,4 @@
-$(document).ready(function() {
+window.onload=function(){
   // chart title
   var chart_title = 'All Incubator Temperatures';
   var chart_subtitle = 'Dynamic loading with decimation';
@@ -35,7 +35,7 @@ $(document).ready(function() {
 
   // add reference line
   addReferenceLine(my_chart, reference_line);
-});
+}
         
 //------------------------------------------------------------------------------------------       
   
