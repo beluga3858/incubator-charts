@@ -1,39 +1,41 @@
-        // chart title
-        var chart_title = 'All Incubator Temperatures';
-        var chart_subtitle = 'Dynamic loading with decimation';
+$(document).ready(function() {
+  // chart title
+  var chart_title = 'All Incubator Temperatures';
+  var chart_subtitle = 'Dynamic loading with decimation';
 
-        // series to plot
-        var series = [
-          {name: 'Janoel'        , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Yellow clone'  , field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'RCom'          , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Ambient'       , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Xiaomi 2'      , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Humigadget2'   , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Styro (Xiaomi)', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen', conv: useFahrenheit?temperatureCtoF:null },
-          {name: 'Humigadget3'   , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink', conv: useFahrenheit?temperatureCtoF:null }
-        ];
+  // series to plot
+  var series = [
+    {name: 'Janoel'        , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Yellow clone'  , field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'RCom'          , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Ambient'       , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Xiaomi 2'      , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Humigadget2'   , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Styro (Xiaomi)', field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Humigadget3'   , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink', conv: useFahrenheit?temperatureCtoF:null }
+  ];
 
-        // reference line value
-        var reference_line = 37.5; 
-        if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
+  // reference line value
+  var reference_line = 37.5; 
+  if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
 
-        // add a blank chart
-        var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
-        
-        // start and end times to plot
-        var end_time = new Date();
-        var start_time = new Date();
-        start_time.setTime(end_time.getTime() - (4/*30*/*24*60*60*1000)); // 30 days
+  // add a blank chart
+  var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
 
-        // add the series
-        for (var i=0; i<series.length; i++) {
-          var s = series[i];
-          addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv);
-        }
-        
-        // add reference line
-        addReferenceLine(my_chart, reference_line);
+  // start and end times to plot
+  var end_time = new Date();
+  var start_time = new Date();
+  start_time.setTime(end_time.getTime() - (4/*30*/*24*60*60*1000)); // 30 days
+
+  // add the series
+  for (var i=0; i<series.length; i++) {
+    var s = series[i];
+    addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv);
+  }
+
+  // add reference line
+  addReferenceLine(my_chart, reference_line);
+});
         
 //------------------------------------------------------------------------------------------       
   
