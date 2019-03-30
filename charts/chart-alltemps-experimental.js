@@ -1,7 +1,7 @@
 window.onload=function(){
   // chart title
   var chart_title = 'All Incubator Temperatures';
-  var chart_subtitle = 'Dynamic loading with decimation';
+  var chart_subtitle = ''; // 'Dynamic loading with decimation';
 
   // series to plot
   var series = [
