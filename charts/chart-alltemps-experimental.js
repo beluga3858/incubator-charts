@@ -21,7 +21,7 @@ window.onload=function(){
 
   // add a blank chart
   var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
-
+  
   // start and end times to plot
   var end_time = new Date();
   var start_time = new Date();
@@ -32,10 +32,9 @@ window.onload=function(){
     var s = series[i];
     addSeries(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv);
   }
-
+  
   // add reference line
   addReferenceLine(my_chart, reference_line);
-
         
 //------------------------------------------------------------------------------------------       
   
@@ -164,7 +163,8 @@ window.onload=function(){
           showInNavigator: true,
           dataGrouping: {
             enabled: false, 
-          }  
+          },
+          
         },
       },
       
@@ -184,25 +184,35 @@ window.onload=function(){
       
       tooltip: {
         valueDecimals: 2,
-        valueSuffix: '°'+(useFahrenheit?'F':'C')
+        valueSuffix: useFahrenheit?'°F':'°C'
       },
         
       exporting: { 
         menuItemDefinitions: {
             // Custom definition
             units: {
-                onclick: function () {
-                  // toggle temperature units
-                  sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
-                  location.reload();
-                },
-                text: useFahrenheit?'Celsius':'Fahrenheit'
+                onclick: () => {toggleFahrenheit()},
+                text: useFahrenheit?'Use Celsius':'Use Fahrenheit'
             }
         },
         buttons: {
           contextButton: {
-            menuItems: ['downloadPNG','units']
-          }
+            menuItems: ['downloadPNG','downloadJPEG','downloadSVG','separator','units']
+          },
+          customButton: {
+            onclick: () => {toggleFahrenheit()},
+            text: useFahrenheit?'Use °C':'Use °F',
+            theme: {
+              'font-size':'10px',
+              fill: '#EEEEEE',
+              r: 4,
+              states: {
+                hover: {
+                  fill: 'lightgrey'
+                },
+              }
+            }
+          },          
         }
       },
       
@@ -219,11 +229,17 @@ window.onload=function(){
     return new Highcharts.stockChart(chartOptions);
   }
   
+  // switch temperature units
+  function toggleFahrenheit() {
+    sessionStorage.setItem('fahrenheit',(!useFahrenheit).toString());
+    location.reload();
+  }
+  
 	// convert color to RGB code
   function standardize_color(str){ 
     var ctx = document.createElement('canvas').getContext('2d'); 
     ctx.fillStyle = str; 
     return ctx.fillStyle; 
   } 
- 
+
 }
