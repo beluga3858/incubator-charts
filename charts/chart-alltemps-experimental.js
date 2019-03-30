@@ -33,45 +33,44 @@
         }
         
         // add reference line
-        //addReferenceLine(my_chart, reference_line);
-
-        // set x axis to past 24 hours (range in ms)
-        //setXAxisRange(my_chart, Date(), -24*60*60*1000);
+        addReferenceLine(my_chart, reference_line);
+        
+//------------------------------------------------------------------------------------------       
   
-    
-       
+  // dynamically update data for visible region
   function afterSetExtremes(e) {
-    for (var i=0; i<series.length; i++) {
-      var s = series[i];        
+    for (let i=0; i<series.length; i++) {
+      let s = series[i];        
       updateSeries(Highcharts.charts[0], s.name, s.ch_id, s.field, s.api_key, e.min, e.max, s.color, 0, s.conv);
     }
   }  
 
-
   // get date in thingspeak query format (UTC) YYYY-MM-DD%20HH:NN:SS
 	function thingspeakFormatDate(date) {
-  	d = new Date(date);
+  	let d = new Date(date);
     return d.toISOString().substr(0,19).replace("T"," ");
   }
   
   // calculate decimation value for thingspeak
   function thingspeakDecimation(start_time, end_time) {
     let range = (end_time-start_time)/(60*1000); // in minutes
-    for (let d of [/*1440,720,240,*/60,30,20,10]) { 
-    	if ((range/d) > 130) return d;
+    for (let decimation of [/*1440,720,240,*/60,30,20,10]) { 
+    	if ((range/decimation) > 130) return decimation;
     }
     return 0;
   }
   
+  // add a data series to the chart
   function addSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
   	_loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, true);
   }
   
+  // update a data series on the chart
   function updateSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
     _loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, false);
   }
   
-  // add a series to the chart
+  // add or update a data series 
   function _loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, add_new) {
     yaxis = yaxis || 0;
     conversion_function = conversion_function || function(x) {return x};
@@ -89,7 +88,6 @@
     $.getJSON(URL, function(data) {
 
       var chart_data = [];
-      var gap_count = 0;
       var field_name = 'field' + field_number;
       var prev_time = Date.parse(data.feeds[0].created_at);
     
@@ -99,8 +97,7 @@
         var value = conversion_function(parseFloat(this[field_name]));
         var time = Date.parse(this.created_at);
         // skip nulls in data (data with a time but no measurement)
-        if (isNaN(value) && ++gap_count) return;
-        gap_count=0;
+        if (isNaN(value)) return;
         // deliberately add gap if no measurements for several minutes
         if (time-prev_time > (decimation+5)*60*1000) chart_data.push([time-1,null]);
         prev_time=time;
@@ -120,6 +117,7 @@
     });
   }   
 
+  // create a multi temperature chart (stock chart style)
   function addChartMultiTemperature(title, subtitle, y_axis_title) {
 
     var chartOptions = {
@@ -219,7 +217,10 @@
     return new Highcharts.stockChart(chartOptions);
   }
   
-  // convert color to RGB code
-  function standardize_color(str){ var ctx = document.createElement('canvas').getContext('2d'); ctx.fillStyle = str; return ctx.fillStyle; } 
+	// convert color to RGB code
+  function standardize_color(str){ 
+    var ctx = document.createElement('canvas').getContext('2d'); 
+    ctx.fillStyle = str; 
+    return ctx.fillStyle; 
+  } 
  
-
