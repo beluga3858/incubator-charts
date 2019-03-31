@@ -5,14 +5,14 @@ window.onload=function(){
 
   // series to plot
   var series = [
-    {name: 'Janoel'           , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Yellow clone'     , field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'RCom (Sensiron)'  , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Ambient'          , field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'RCom-R(Xiaomi-2)' , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Humigadget2'      , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'RCom-L(Xiaomi-1)' , field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Humigadget3'      , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink', conv: useFahrenheit?temperatureCtoF:null }
+    {name: 'Wired-3'        , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Wired-2'        , field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Sensiron(RCC)'  , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Wired-1(Ambient)',field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Xiaomi-2(RCR)'  , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Humigadget2'    , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Xiaomi-1(RCL)'  , field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen', conv: useFahrenheit?temperatureCtoF:null },
+    {name: 'Humigadget3'    , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink', conv: useFahrenheit?temperatureCtoF:null }
   ];
 
   // reference line value
