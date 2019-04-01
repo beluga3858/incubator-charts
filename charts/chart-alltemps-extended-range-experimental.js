@@ -1,4 +1,5 @@
 window.onload=function(){
+
   // chart title
   var chart_title = 'All Incubator Temperatures';
   var chart_subtitle = 'Extended timeframe';
@@ -19,25 +20,34 @@ window.onload=function(){
   var reference_line = 37.5; 
   if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
 
+  // start and end times to plot
+  const oneday=24*60*60*1000;
+  var end_time = new Date();
+  var start_time = new Date(end_time.getTime() - (30*oneday)); // 30 days
+
   // add a blank chart
   var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
-  
-  // start and end times to plot
-  var end_time = new Date();
-  var start_time = new Date();
-  start_time.setTime(end_time.getTime() - (28*24*60*60*1000)); // 28 days
-  //alert(start_time+"\n"+end_time);
-  // add the series
-  series.forEach(s => addInitialSeriesData(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv)); 
-  
+
+	// add the series data (no redraw)
+  let seriespromises = [];
+  series.forEach(s => seriespromises.push(addInitialSeriesData(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv))); 
+
   // add reference line
   addReferenceLine(my_chart, reference_line);
+  
+	// wait for all the series to be added before drawing chart
+	Promise.all(seriespromises).then(() => {
+  	my_chart.hideLoading();
+    my_chart.redraw(false); // animation disabled
+  });
+  
+  
+
         
 //------------------------------------------------------------------------------------------       
   
   // dynamically update data for visible region
-  function afterSetExtremes(e) {
-  //return;
+  function afterSetXExtremes(e) {
     series.forEach(s => updateSeries(Highcharts.charts[0], s.name, s.ch_id, s.field, s.api_key, e.min, e.max, s.color, 0, s.conv));
   }  
 
@@ -56,59 +66,53 @@ window.onload=function(){
     return 0;
   }
   
-  // add a data series to the chart
-  function addSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
-  	_loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, true);
-  }
-  
-  // update a data series on the chart
-  function updateSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
-    _loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, false);
-  }
-  
-  
-    // add or update a data series 
+	// add initial data series, chunking as necessary for extended timeframe
   function addInitialSeriesData(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
-    yaxis = yaxis || 0;
-    conversion_function = conversion_function || function(x) {return x};
-    start_time=new Date(start_time).getTime(); // convert to msec
-    end_time=new Date(end_time).getTime(); // convert to msec
+    return new Promise((resolve, reject) => {
 
- 		// calculate data decimation (if any)
-    var decimation=thingspeakDecimation(start_time, end_time);
-    
-    // build task list    
-    const fivedays=5*24*3600*1000;
-    let promises = [];
-    let stuff='s:'+start_time+'  e:'+end_time+'\n';
-    stuff+='s:'+new Date(start_time)+'  e:'+new Date(end_time)+'\n';
-    let block_start_time=start_time;
-    while(block_start_time < end_time) {
-    	let block_end_time=block_start_time+Math.min(fivedays,end_time-block_start_time);
-  		stuff+='st:'+block_start_time+' et:'+block_end_time+'\n';
-      promises.push(thingspeakGetDataBlock(URL, channel_id, field_number, api_key, block_start_time, block_end_time, decimation, conversion_function));
-      block_start_time=block_end_time+1;
-    }
-    //alert(stuff);
-		// wait for all the async retrieval to happen
-		Promise.all(promises).then(responses => {
-      // all tasks complete. Build composite data
-      var chart_data = [];
-      for(let response of responses) {
-        //alert(response.length);
-        chart_data.push.apply(chart_data,response);
-      }
+      yaxis = yaxis || 0;
+      conversion_function = conversion_function || function(x) {return x};
+      start_time=new Date(start_time).getTime(); // convert to msec
+      end_time=new Date(end_time).getTime(); // convert to msec
 
-			// add series (if any data) to chart
-      if (chart_data.length) {
-        chart_data.push([end_time+1, null]); // ensure end time included
-        chart.addSeries({ data: chart_data, name: name, color: standardize_color(color), yAxis: yaxis, id: name}); 
+      // display loading message
+      chart.showLoading();
+      
+      // calculate data decimation (if any)
+      var decimation=thingspeakDecimation(start_time, end_time);
+
+      // build task list
+      // retrieving in 5 day blocks. Max data points per retrieval is 8000. Each point is
+      // at ~1 min intervals. 8000min = 133hrs = 5.5days
+      const fivedays=5*24*3600*1000;
+      let promises = [];
+      let block_start_time=start_time;
+      while(block_start_time < end_time) {
+        let block_end_time=block_start_time+Math.min(fivedays,end_time-block_start_time);
+        promises.push(_thingspeakGetDataBlock(URL, channel_id, field_number, api_key, block_start_time, block_end_time, decimation, conversion_function));
+        block_start_time=block_end_time+1;
       }
+      
+      // wait for all the async retrieval to happen
+      Promise.all(promises).then(all_data => {
+        // all tasks complete. Build composite data
+        let chart_data = [];
+        for(let data_block of all_data) {
+          chart_data.push.apply(chart_data,data_block);
+        }
+
+        // add series (if any data) to chart
+        if (chart_data.length) {
+          chart_data.push([end_time+1, null]); // ensure end time included
+          chart.addSeries({ data: chart_data, name: name, color: standardize_color(color), yAxis: yaxis, id: name}, false);
+        }
+        resolve();
+      });
     });
   }
 
 	// async retrieval of a data block
-  function thingspeakGetDataBlock(URL, channel_id, field_number, api_key, start_time, end_time, decimation, conversion_function) {
+  function _thingspeakGetDataBlock(URL, channel_id, field_number, api_key, start_time, end_time, decimation, conversion_function) {
     return new Promise((resolve, reject) => {
 
       // get the data with a webservice call
@@ -125,7 +129,7 @@ window.onload=function(){
         var field_name = 'field' + field_number;
         var prev_time = Date.parse(data.feeds[0].created_at);
 
-        // iterate through each feed
+        // iterate through data
         $.each(data.feeds, function() {
           // get value and time
           var value = conversion_function(parseFloat(this[field_name]));
@@ -144,7 +148,16 @@ window.onload=function(){
       });
     });
   }   
+    
+  // add a data series to the chart
+  function addSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
+  	_loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, true);
+  }
   
+  // update a data series on the chart
+  function updateSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
+    _loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, false);
+  }
   
   // add or update a data series 
   function _loadSeries(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function, add_new) {
@@ -160,7 +173,7 @@ window.onload=function(){
         '&api_key=' + api_key + // '&results=' + results + 
         '&start=' + thingspeakFormatDate(start_time) + '&end=' + thingspeakFormatDate(end_time) +
         '&median=' + decimation; 
-    //alert(URL);
+		//alert(URL);
     $.getJSON(URL, function(data) {
 
       var chart_data = [];
@@ -223,7 +236,7 @@ window.onload=function(){
       xAxis: {
         ordinal: false,
         events: {
-          afterSetExtremes: afterSetExtremes
+          afterSetExtremes: afterSetXExtremes
         },
         minRange: 3600 * 1000, // one hour
         maxRange: 5*24*3600*1000,
