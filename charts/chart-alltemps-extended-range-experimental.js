@@ -215,6 +215,19 @@ window.onload=function(){
       }
     });
   }   
+  
+  // toggle wired/wireless series on/off
+  function toggleSensors(button, match) {
+    let showSensors = button.state === 2;
+    button.setState(showSensors? 0 : 2); 
+  	series.forEach(function(s) {
+    	if (match(s.type)) {
+      	let cs = Highcharts.charts[0].get(s.display_name);
+      	if (cs) 
+        	if (showSensors) cs.show(); else cs.hide();
+      }
+    });
+  }
 
   // create a multi temperature chart (stock chart style)
   function addChartMultiTemperature(title, subtitle, y_axis_title) {
@@ -222,7 +235,7 @@ window.onload=function(){
     var chartOptions = {
       chart: {
         renderTo: 'chart-container',
-        zoomType: 'x'
+        zoomType: 'x',  
       },
     
     	time: {
@@ -300,7 +313,7 @@ window.onload=function(){
           contextButton: {
             menuItems: ['downloadPNG','downloadJPEG','downloadSVG','separator','units']
           },
-          customButton: {
+          CFButton: {
             onclick: () => {toggleFahrenheit()},
             text: useFahrenheit?'Use °C':'Use °F',
             theme: {
@@ -313,7 +326,49 @@ window.onload=function(){
                 },
               }
             }
-          },          
+          },   
+          WiredButton: {
+            onclick: function () { 
+            	toggleSensors(this.exportSVGElements[4],type => (type=='wired')); 
+            },
+            text: 'Wired',     
+            theme: {
+              'font-size':'10px',
+              style: {color: 'black'},
+              fill: '#EEEEEE',
+              r: 4,
+              states: {
+                hover: {
+                  fill: 'darkgrey'
+                },
+                select: {
+                fill: '#EEEEEE',
+                	style: {color: 'lightgray'},
+                }
+              }
+            }
+          },
+          WirelessButton: {
+            onclick: function () { 
+              toggleSensors(this.exportSVGElements[6],type=>type!='wired'); 
+            },
+            text: 'Wireless',         
+            theme: {
+              'font-size':'10px',
+              style: {color: 'black'},
+              fill: '#EEEEEE',
+              r: 4,
+              states: {
+                hover: {
+                  fill: 'darkgrey'
+                },
+                select: {
+                fill: '#EEEEEE',
+                	style: {color: 'lightgray'},
+                }
+              }
+            }
+          }
         }
       },
       
