@@ -1,5 +1,4 @@
 window.onload=function(){
-
   // chart title
   var chart_title = 'All Incubator Temperatures';
   var chart_subtitle = 'Extended timeframe';
@@ -14,14 +13,16 @@ window.onload=function(){
   var start_time = new Date(end_time.getTime() - (30*oneday)); // 30 days
   
   // series to plot
-  var series=[];
+  var series_spreadsheet='1ceMW62pXpXqIMkkMqoivF2xflBU0jVBxwjasjA2zgrk';
+  var sheets_apikey='AIzaSyCVVYOJ2NG1Q38_RgzXBmSeDUBXthv_D1Y';
   
   // add a blank chart
   var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
   
-  // dyamically load series to plot
-  my_chart.showLoading('Loading sensor list...')
-  $.getJSON("https://sheets.googleapis.com/v4/spreadsheets/1ceMW62pXpXqIMkkMqoivF2xflBU0jVBxwjasjA2zgrk/values/Sheet1?key=AIzaSyCVVYOJ2NG1Q38_RgzXBmSeDUBXthv_D1Y", function(data) {
+  // dyamically load the series to plot
+  var series=[];
+  showLoadingSpinner('Loading sensor list'); 
+  $.getJSON('https://sheets.googleapis.com/v4/spreadsheets/'+series_spreadsheet+'/values/Sheet1?key='+sheets_apikey, function(data) {
     for(let i=1; i<data.values.length; i++) {
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
@@ -68,6 +69,12 @@ window.onload=function(){
     return 0;
   }
   
+  // show loading spinner on chart
+  function showLoadingSpinner(text) {
+    const spinner='https://raw.githack.com/beluga3858/incubator-charts/master/charts/assets/Dual-Ring-1.5s-64px.svg';
+    my_chart.showLoading('<img src="'+spinner+'"><br>'+text); 
+  }
+  
 	// add initial data series, chunking as necessary for extended timeframe
   function addInitialSeriesData(chart, name, channel_id, field_number, api_key, start_time, end_time, color, yaxis, conversion_function) {
     return new Promise((resolve, reject) => {
@@ -76,9 +83,9 @@ window.onload=function(){
       conversion_function = conversion_function || function(x) {return x};
       start_time=new Date(start_time).getTime(); // convert to msec
       end_time=new Date(end_time).getTime(); // convert to msec
-
-			// display loading message
-      chart.showLoading('Loading data...');
+      
+      // display loading message
+      showLoadingSpinner('Loading data');
       
       // calculate data decimation (if any)
       var decimation=thingspeakDecimation(start_time, end_time);
@@ -335,5 +342,4 @@ window.onload=function(){
     ctx.fillStyle = str; 
     return ctx.fillStyle; 
   } 
-
 }
