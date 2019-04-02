@@ -4,18 +4,6 @@ window.onload=function(){
   var chart_title = 'All Incubator Temperatures';
   var chart_subtitle = 'Extended timeframe';
 
-  // series to plot
-  var series = [
-    {name: 'Wired-3'        , field: 2, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'purple', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Wired-2'        , field: 4, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'yellow', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Sensiron(RCC)'  , field: 6, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'green', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Wired-1(Ambient)',field: 8, ch_id: 519385, api_key: 'TUDLH2CIKZ7MTHIV', color: 'cyan', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Xiaomi-2(RCR)'  , field: 2, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'blue', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Humigadget2'    , field: 4, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'orange', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Xiaomi-1(RCL)'  , field: 6, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'darkolivegreen', conv: useFahrenheit?temperatureCtoF:null },
-    {name: 'Humigadget3'    , field: 8, ch_id: 540129, api_key: 'HY04Q2ZFA2H86L5X', color: 'pink', conv: useFahrenheit?temperatureCtoF:null }
-  ];
-
   // reference line value
   var reference_line = 37.5; 
   if (useFahrenheit) reference_line = temperatureCtoF(reference_line);
@@ -24,21 +12,35 @@ window.onload=function(){
   const oneday=24*60*60*1000;
   var end_time = new Date();
   var start_time = new Date(end_time.getTime() - (30*oneday)); // 30 days
-
+  
+  // series to plot
+  var series=[];
+  
   // add a blank chart
   var my_chart = addChartMultiTemperature(chart_title, chart_subtitle);
-
-	// add the series data (no redraw)
-  let seriespromises = [];
-  series.forEach(s => seriespromises.push(addInitialSeriesData(my_chart, s.name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv))); 
-
-  // add reference line
-  addReferenceLine(my_chart, reference_line);
   
-	// wait for all the series to be added before drawing chart
-	Promise.all(seriespromises).then(() => {
-  	my_chart.hideLoading();
-    my_chart.redraw(false); // animation disabled
+  // dyamically load series to plot
+  my_chart.showLoading('Loading sensor list...')
+  $.getJSON("https://sheets.googleapis.com/v4/spreadsheets/1ceMW62pXpXqIMkkMqoivF2xflBU0jVBxwjasjA2zgrk/values/Sheet1?key=AIzaSyCVVYOJ2NG1Q38_RgzXBmSeDUBXthv_D1Y", function(data) {
+    for(let i=1; i<data.values.length; i++) {
+      let s = {};
+      data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
+      s.conv=useFahrenheit?temperatureCtoF:null;
+      if (s.api_key && s.display_name) series.push(s);
+    }
+
+    // add the series data (no redraw)
+    let seriespromises = [];
+    series.forEach(s => seriespromises.push(addInitialSeriesData(my_chart, s.display_name, s.ch_id, s.temperature_field, s.api_key, start_time, end_time, s.color, 0, s.conv))); 
+
+    // add reference line
+    addReferenceLine(my_chart, reference_line);
+
+    // wait for all the series to be added before drawing chart
+    Promise.all(seriespromises).then(() => {
+      my_chart.hideLoading();
+      my_chart.redraw(false); // animation disabled
+    });
   });
   
   
@@ -48,7 +50,7 @@ window.onload=function(){
   
   // dynamically update data for visible region
   function afterSetXExtremes(e) {
-    series.forEach(s => updateSeries(Highcharts.charts[0], s.name, s.ch_id, s.field, s.api_key, e.min, e.max, s.color, 0, s.conv));
+    series.forEach(s => updateSeries(Highcharts.charts[0], s.display_name, s.ch_id, s.temperature_field, s.api_key, e.min, e.max, s.color, 0, s.conv));
   }  
 
   // get date in thingspeak query format (UTC) YYYY-MM-DD%20HH:NN:SS
@@ -75,8 +77,8 @@ window.onload=function(){
       start_time=new Date(start_time).getTime(); // convert to msec
       end_time=new Date(end_time).getTime(); // convert to msec
 
-      // display loading message
-      chart.showLoading();
+			// display loading message
+      chart.showLoading('Loading data...');
       
       // calculate data decimation (if any)
       var decimation=thingspeakDecimation(start_time, end_time);
@@ -333,4 +335,5 @@ window.onload=function(){
     ctx.fillStyle = str; 
     return ctx.fillStyle; 
   } 
+
 }
