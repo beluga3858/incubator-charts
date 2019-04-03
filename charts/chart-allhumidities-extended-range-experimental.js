@@ -1,4 +1,4 @@
-// window.onload=function(){
+window.onload=function(){
   // chart title
   var chart_title = 'All Incubator Humidities';
   var chart_subtitle = 'Extended timeframe';
@@ -404,4 +404,4 @@
     ctx.fillStyle = str; 
     return ctx.fillStyle; 
   } 
-//}
+}
