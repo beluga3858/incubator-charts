@@ -232,8 +232,8 @@ window.onload=function(){
         events: {
           load: function () { 
             // extract version number from script source url
-            let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
-            if (version) { 
+            try {
+	            let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
               let label=this.renderer.label(version[1]).css({
                 color: 'darkgrey',
                 'font-size': 10,
@@ -241,9 +241,9 @@ window.onload=function(){
               label.align(Highcharts.extend(label.getBBox(), {
                 align: 'left',
                 verticalAlign: 'bottom',
-                y: 15 
+                y: 10 
               }), null, 'spacingBox');
-            }
+            } catch(e) {}
           }
         },
       },
