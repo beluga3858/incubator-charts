@@ -238,8 +238,19 @@ window.onload=function(){
         zoomType: 'x',  
         events: {
           load: function () { 
-          	let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
-            if (version) { let label=this.renderer.label(version[1]).add(); }
+            // extract version number from script source url
+            let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
+            if (version) { 
+              let label=this.renderer.label(version[1]).css({
+                color: 'darkgrey',
+                'font-size': 10,
+              }).add(); 
+              label.align(Highcharts.extend(label.getBBox(), {
+                align: 'left',
+                verticalAlign: 'bottom',
+                y: 15 
+              }), null, 'spacingBox');
+            }
           }
         },
       },
