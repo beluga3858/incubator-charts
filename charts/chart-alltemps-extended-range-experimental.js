@@ -236,6 +236,12 @@ window.onload=function(){
       chart: {
         renderTo: 'chart-container',
         zoomType: 'x',  
+        events: {
+          load: function () { 
+          	let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
+            if (version) { let label=this.renderer.label(version[1]).add(); }
+          }
+        },
       },
     
     	time: {
