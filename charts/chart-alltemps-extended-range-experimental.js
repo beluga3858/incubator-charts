@@ -1,7 +1,7 @@
 window.onload=function(){
   // chart title
   var chart_title = 'All Incubator Temperatures';
-  var chart_subtitle = 'Extended timeframe';
+  var chart_subtitle = '';
 
   // reference line value
   var reference_line = 37.5; 
@@ -27,12 +27,13 @@ window.onload=function(){
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
       s.conv=useFahrenheit?temperatureCtoF:null;
-      if (s.api_key && s.display_name) series.push(s);
+      if (s.api_key && s.ch_id && s.display_name && (s.field=s.temperature_field))
+      	series.push(s);
     }
 
     // add the series data (no redraw)
     let seriespromises = [];
-    series.forEach(s => seriespromises.push(addInitialSeriesData(my_chart, s.display_name, s.ch_id, s.temperature_field, s.api_key, start_time, end_time, s.color, 0, s.conv))); 
+    series.forEach(s => seriespromises.push(addInitialSeriesData(my_chart, s.display_name, s.ch_id, s.field, s.api_key, start_time, end_time, s.color, 0, s.conv))); 
 
     // add reference line
     addReferenceLine(my_chart, reference_line);
@@ -51,7 +52,7 @@ window.onload=function(){
   
   // dynamically update data for visible region
   function afterSetXExtremes(e) {
-    series.forEach(s => updateSeries(Highcharts.charts[0], s.display_name, s.ch_id, s.temperature_field, s.api_key, e.min, e.max, s.color, 0, s.conv));
+    series.forEach(s => updateSeries(Highcharts.charts[0], s.display_name, s.ch_id, s.field, s.api_key, e.min, e.max, s.color, 0, s.conv));
   }  
 
   // get date in thingspeak query format (UTC) YYYY-MM-DD%20HH:NN:SS
@@ -80,7 +81,7 @@ window.onload=function(){
     return new Promise((resolve, reject) => {
 
       yaxis = yaxis || 0;
-      conversion_function = conversion_function || function(x) {return x};
+      conversion_function = conversion_function || (x => x);
       start_time=new Date(start_time).getTime(); // convert to msec
       end_time=new Date(end_time).getTime(); // convert to msec
       
@@ -230,7 +231,7 @@ window.onload=function(){
   }
 
   // create a multi temperature chart (stock chart style)
-  function addChartMultiTemperature(title, subtitle, y_axis_title) {
+  function addChartMultiTemperature(title, subtitle) {
 
     var chartOptions = {
       chart: {
@@ -319,16 +320,17 @@ window.onload=function(){
       },
         
       exporting: { 
+      	/*
         menuItemDefinitions: {
             // Custom definition
             units: {
                 onclick: () => {toggleFahrenheit()},
                 text: useFahrenheit?'Use Celsius':'Use Fahrenheit'
             }
-        },
+        },*/
         buttons: {
           contextButton: {
-            menuItems: ['downloadPNG','downloadJPEG','downloadSVG','separator','units']
+            menuItems: ['downloadPNG','downloadJPEG','downloadSVG'] //,'separator','units']
           },
           CFButton: {
             onclick: () => {toggleFahrenheit()},
@@ -400,6 +402,19 @@ window.onload=function(){
     
     // create the chart
     return new Highcharts.stockChart(chartOptions);
+  }
+  
+  // create a multi humidity chart (stock chart style)
+  function addChartMultiHumidity(title, subtitle) {
+  	// use the multi-temperature chart
+  	let chart=addChartMultiTemperature(title, subtitle);
+    
+    // and modify 
+		chart.exportSVGElements[2].hide(); // hide C/F
+    chart.update({ tooltip: {valueSuffix: '%'} }); // change tooltip 
+    chart.yAxis[0].setTitle({ text: "Humidity %" }); // label y axis
+    
+    return chart;
   }
   
   // switch temperature units

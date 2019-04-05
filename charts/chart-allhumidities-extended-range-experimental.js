@@ -1,7 +1,7 @@
 window.onload=function(){
   // chart title
   var chart_title = 'All Incubator Humidities';
-  var chart_subtitle = 'Extended timeframe';
+  var chart_subtitle = '';
 
   // start and end times to plot
   const oneday=24*60*60*1000;
