@@ -27,14 +27,14 @@ window.onload=function(){
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
       s.conv=useFahrenheit?temperatureCtoF:null;
-      if (s.api_key && s.ch_id && s.display_name && (s.field=s.temperature_field))
+      if (s.api_key && s.ch_id && s.display_name && (s.field=s.temperature_field)) {
       	series.push(s);
         if (s.group) groups.add(s.group);
       }
     }
 
   	// create chart
-    my_chart = addChartMultiHumidity(chart_title, chart_subtitle, groups);
+    my_chart = addChartMultiTemperature(chart_title, chart_subtitle, groups);
 
     // add the series data (no redraw)
     let seriespromises = [];
