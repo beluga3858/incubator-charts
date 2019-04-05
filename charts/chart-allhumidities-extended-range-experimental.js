@@ -1,4 +1,5 @@
 window.onload=function(){
+
   // chart title
   var chart_title = 'All Incubator Humidities';
   var chart_subtitle = '';
@@ -12,19 +13,24 @@ window.onload=function(){
   var series_spreadsheet='1ceMW62pXpXqIMkkMqoivF2xflBU0jVBxwjasjA2zgrk';
   var sheets_apikey='AIzaSyCVVYOJ2NG1Q38_RgzXBmSeDUBXthv_D1Y';
   
-  // add a blank chart
-  var my_chart = addChartMultiHumidity(chart_title, chart_subtitle);
+  // my chart
+  var my_chart;
   
   // dyamically load the series to plot
   var series=[];
-  showLoadingSpinner('Loading sensor list'); 
+  var groups = new Set();
   $.getJSON('https://sheets.googleapis.com/v4/spreadsheets/'+series_spreadsheet+'/values/Sheet1?key='+sheets_apikey, function(data) {
     for(let i=1; i<data.values.length; i++) {
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
-      if (s.api_key && s.ch_id && s.display_name && (s.field=s.humidity_field))
+      if (s.api_key && s.ch_id && s.display_name && (s.field=s.humidity_field)) {
       	series.push(s);
+        if (s.group) groups.add(s.group);
+      }
     }
+  
+  	// create chart
+    my_chart = addChartMultiHumidity(chart_title, chart_subtitle, groups);
 
     // add the series data (no redraw)
     let seriespromises = [];
@@ -36,8 +42,6 @@ window.onload=function(){
       my_chart.redraw(false); // animation disabled
     });
   });
-  
-  
 
         
 //------------------------------------------------------------------------------------------       
@@ -124,7 +128,6 @@ window.onload=function(){
           '&start=' + thingspeakFormatDate(start_time) + 
           '&end=' + thingspeakFormatDate(end_time) +
           '&median=' + decimation;
-          
       $.getJSON(url, function(data) {
 
         var chart_data = [];
@@ -209,31 +212,32 @@ window.onload=function(){
     });
   }   
   
-  // toggle wired/wireless series on/off
+  // toggle sensor groups on/off
   function toggleSensors(button, match) {
     let showSensors = button.state === 2;
     button.setState(showSensors? 0 : 2); 
-  	series.forEach(function(s) {
-    	if (match(s.type)) {
-      	let cs = Highcharts.charts[0].get(s.display_name);
-      	if (cs) 
-        	if (showSensors) cs.show(); else cs.hide();
+    series.forEach(function(s) {
+      if (match(s.group)) {
+        let cs = Highcharts.charts[0].get(s.display_name);
+        if (cs) 
+          if (showSensors) cs.show(); else cs.hide();
       }
     });
   }
   
   // create a multi temperature chart (stock chart style)
-  function addChartMultiTemperature(title, subtitle) {
-
+  function addChartMultiTemperature(title, subtitle, groups) {
+    groups = groups || [];
+    
     var chartOptions = {
       chart: {
         renderTo: 'chart-container',
-        zoomType: 'x', 
+        zoomType: 'x',  
         events: {
           load: function () { 
             // extract version number from script source url
             try {
-	            let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
+              let version=document.getElementById('myscript').src.match(/@v(.*?)\//);
               let label=this.renderer.label(version[1]).css({
                 color: 'darkgrey',
                 'font-size': 10,
@@ -262,7 +266,9 @@ window.onload=function(){
         ],
         selected: 3,
         inputEnabled: false,
-        
+        //floating: true,
+        verticalAlign: 'top', //''bottom',
+        y: -38,
       },
 
       xAxis: {
@@ -293,6 +299,7 @@ window.onload=function(){
       },
       
       navigator: {
+      	margin: 5,
         adaptToUpdatedData: false,
         series: {
           fillOpacity: 0,
@@ -338,52 +345,13 @@ window.onload=function(){
               }
             }
           },   
-          WiredButton: {
-            onclick: function () { 
-            	toggleSensors(this.exportSVGElements[4],type => (type=='wired')); 
-            },
-            text: 'Wired',     
-            theme: {
-              'font-size':'10px',
-              style: {color: 'black'},
-              fill: '#EEEEEE',
-              r: 4,
-              states: {
-                hover: {
-                  fill: 'darkgrey'
-                },
-                select: {
-                fill: '#EEEEEE',
-                	style: {color: 'lightgray'},
-                }
-              }
-            }
-          },
-          WirelessButton: {
-            onclick: function () { 
-              toggleSensors(this.exportSVGElements[6],type=>type!='wired'); 
-            },
-            text: 'Wireless',         
-            theme: {
-              'font-size':'10px',
-              style: {color: 'black'},
-              fill: '#EEEEEE',
-              r: 4,
-              states: {
-                hover: {
-                  fill: 'darkgrey'
-                },
-                select: {
-                fill: '#EEEEEE',
-                	style: {color: 'lightgray'},
-                }
-              }
-            }
-          }
         }
       },
       
-      legend: { enabled: true },
+      legend: { 
+      	enabled: true,
+        margin: 0,
+      },
       
       credits: {
         text: 'casportpony.com',
@@ -391,18 +359,55 @@ window.onload=function(){
       }        
 
     };
+
+		// dynamically add group buttons
+	  for (let group of groups) {
+      var GB = {
+        onclick: function (e) {
+          let text=e.target.textContent;
+          toggleSensors(findButtonSVG(this,text),g => (g==text)); 
+        },
+        text: group,        
+        theme: {
+          'font-size':'10px',
+          style: {color: 'black'},
+          fill: '#EEEEEE',
+          r: 4,
+          states: {
+            hover: {
+              fill: 'darkgrey'
+            },
+            select: {
+              fill: '#EEEEEE',
+              style: {color: 'lightgray'},
+            }
+          }
+        }
+      };  
+      chartOptions.exporting.buttons['Group-'+group] = GB;
+    }
     
     // create the chart
     return new Highcharts.stockChart(chartOptions);
   }
   
+  // find button SVGElement based on text
+  function findButtonSVG(chart, text) {
+  	for (let i=2; i<chart.exportSVGElements.length; i+=2) {
+      try {
+        let element=chart.exportSVGElements[i];
+        if (element.element.textContent==text) return element;
+      } catch (e) {}
+    }
+  }
+  
   // create a multi humidity chart (stock chart style)
-  function addChartMultiHumidity(title, subtitle) {
+  function addChartMultiHumidity(title, subtitle, groups) {
   	// use the multi-temperature chart
-  	let chart=addChartMultiTemperature(title, subtitle);
+  	let chart=addChartMultiTemperature(title, subtitle, groups);
     
     // and modify 
-		chart.exportSVGElements[2].hide(); // hide C/F
+    chart.exportSVGElements[2].hide(); // hide C/F
     chart.update({ tooltip: {valueSuffix: '%'} }); // change tooltip 
     chart.yAxis[0].setTitle({ text: "Humidity %" }); // label y axis
     
