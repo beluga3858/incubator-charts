@@ -139,21 +139,24 @@ window.onload=function(){
 
         var chart_data = [];
         var field_name = 'field' + field_number;
-        var prev_time = Date.parse(data.feeds[0].created_at);
+        
+        if (data.feeds && data.feeds.length) {
+          var prev_time = Date.parse(data.feeds[0].created_at);
 
-        // iterate through data
-        $.each(data.feeds, function() {
-          // get value and time
-          var value = conversion_function(parseFloat(this[field_name]));
-          var time = Date.parse(this.created_at);
-          // skip nulls in data (data with a time but no measurement)
-          if (isNaN(value)) return;
-          // deliberately add gap if no measurements for several minutes
-          if (time-prev_time > (decimation+5)*60*1000) chart_data.push([time-1,null]);
-          prev_time=time;
-          // add to chart data
-          chart_data.push([time, value]);
-        });
+          // iterate through data
+          $.each(data.feeds, function() {
+            // get value and time
+            var value = conversion_function(parseFloat(this[field_name]));
+            var time = Date.parse(this.created_at);
+            // skip nulls in data (data with a time but no measurement)
+            if (isNaN(value)) return;
+            // deliberately add gap if no measurements for several minutes
+            if (time-prev_time > (decimation+5)*60*1000) chart_data.push([time-1,null]);
+            prev_time=time;
+            // add to chart data
+            chart_data.push([time, value]);
+          });
+        }
 
 				// return data
         resolve(chart_data);
@@ -190,21 +193,23 @@ window.onload=function(){
 
       var chart_data = [];
       var field_name = 'field' + field_number;
-      var prev_time = Date.parse(data.feeds[0].created_at);
-    
-      // iterate through each feed
-      $.each(data.feeds, function() {
-        // get value and time
-        var value = conversion_function(parseFloat(this[field_name]));
-        var time = Date.parse(this.created_at);
-        // skip nulls in data (data with a time but no measurement)
-        if (isNaN(value)) return;
-        // deliberately add gap if no measurements for several minutes
-        if (time-prev_time > (decimation+5)*60*1000) chart_data.push([time-1,null]);
-        prev_time=time;
-        // add to chart data
-        chart_data.push([time, value]);
-      });
+      if (data.feeds && data.feeds.length) {
+        var prev_time = Date.parse(data.feeds[0].created_at);
+
+        // iterate through each feed
+        $.each(data.feeds, function() {
+          // get value and time
+          var value = conversion_function(parseFloat(this[field_name]));
+          var time = Date.parse(this.created_at);
+          // skip nulls in data (data with a time but no measurement)
+          if (isNaN(value)) return;
+          // deliberately add gap if no measurements for several minutes
+          if (time-prev_time > (decimation+5)*60*1000) chart_data.push([time-1,null]);
+          prev_time=time;
+          // add to chart data
+          chart_data.push([time, value]);
+        });
+      }
       
       // add/update the chart data (if valid)
       if (chart_data.length) {
