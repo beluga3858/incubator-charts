@@ -1,6 +1,11 @@
 window.onload=function(){
+
+  // Specific chart class?
+  var chart_class = document.getElementById('chart-container').getAttribute('chart_class');
+  if (!chart_class) chart_class="";
+
   // chart title
-  var chart_title = 'All Incubator Temperatures';
+  var chart_title = chart_class+' Temperatures';
   var chart_subtitle = '';
 
   // reference line value
@@ -27,7 +32,7 @@ window.onload=function(){
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
       s.conv=useFahrenheit?temperatureCtoF:null;
-      if (s.api_key && s.ch_id && s.display_name && (s.field=s.temperature_field)) {
+      if (s.api_key && s.ch_id && s.display_name && (!chart_class || s[chart_class.toLowerCase()+'_chart']=='TRUE') && (s.field=s.temperature_field)) {
       	series.push(s);
         if (s.group) groups.add(s.group);
       }

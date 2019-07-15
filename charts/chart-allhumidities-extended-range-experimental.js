@@ -1,7 +1,11 @@
 window.onload=function(){
 
+  // Specific chart class?
+  var chart_class = document.getElementById('chart-container').getAttribute('chart_class');
+  if (!chart_class) chart_class="";
+  
   // chart title
-  var chart_title = 'All Incubator Humidities';
+  var chart_title = chart_class+' Humidities';
   var chart_subtitle = '';
 
   // start and end times to plot
@@ -23,7 +27,7 @@ window.onload=function(){
     for(let i=1; i<data.values.length; i++) {
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
-      if (s.api_key && s.ch_id && s.display_name && (s.field=s.humidity_field)) {
+      if (s.api_key && s.ch_id && s.display_name && (!chart_class || s[chart_class.toLowerCase()+'_chart']=='TRUE') && (s.field=s.humidity_field)) {
       	series.push(s);
         if (s.group) groups.add(s.group);
       }
