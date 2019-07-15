@@ -32,6 +32,7 @@ window.onload=function(){
       let s = {};
       data.values[i].forEach((value,index) => s[data.values[0][index].replace(" ","_")]=value);
       s.conv=useFahrenheit?temperatureCtoF:null;
+      if (s.display_name) s.display_name+='('+s.sensor_name+')'; else s.display_name = s.sensor_name;
       if (s.api_key && s.ch_id && s.display_name && (!chart_class || s[chart_class.toLowerCase()+'_chart']=='TRUE') && (s.field=s.temperature_field)) {
       	series.push(s);
         if (s.group) groups.add(s.group);
